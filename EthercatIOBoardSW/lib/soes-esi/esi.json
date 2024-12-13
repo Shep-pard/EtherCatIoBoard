@@ -1,0 +1,225 @@
+{
+  "form": {
+    "VendorName": "Soeren",
+    "VendorID": "0x1337",
+    "ProductCode": "0xdeadbeef",
+    "ProfileNo": "42",
+    "RevisionNumber": "0x001",
+    "SerialNumber": "0x001",
+    "HWversion": "0.0.1",
+    "SWversion": "0.0.1",
+    "EEPROMsize": "2048",
+    "RxMailboxOffset": "0x1000",
+    "TxMailboxOffset": "0x1200",
+    "MailboxSize": "512",
+    "SM2Offset": "0x1600",
+    "SM3Offset": "0x1A00",
+    "TextGroupType": "IO Board",
+    "TextGroupName5": "IO Board",
+    "ImageName": "IMGCBY",
+    "TextDeviceType": "IO Board",
+    "TextDeviceName": "IO Board",
+    "Port0Physical": "Y",
+    "Port1Physical": "Y",
+    "Port2Physical": " ",
+    "Port3Physical": " ",
+    "ESC": "AX58100",
+    "SPImode": "3",
+    "CoeDetailsEnableSDO": "EnableSDO",
+    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",
+    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",
+    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",
+    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",
+    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"
+  },
+  "od": {
+    "sdo": {
+      "A": {
+        "otype": "RECORD",
+        "name": "Error Settings",
+        "access": "RO",
+        "items": [
+          {
+            "name": "Max SubIndex"
+          },
+          {
+            "name": "New record subitem",
+            "dtype": "UNSIGNED8"
+          }
+        ]
+      }
+    },
+    "txpdo": {
+      "600": {
+        "otype": "VAR",
+        "name": "EncFrequency",
+        "access": "RO",
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "dtype": "INTEGER32",
+        "value": "0",
+        "data": "&Obj.EncFrequency"
+      },
+      "6000": {
+        "otype": "ARRAY",
+        "name": "Inputs",
+        "access": "RO",
+        "items": [
+          {
+            "name": "Max SubIndex"
+          },
+          {
+            "name": "IN1",
+            "data": "&Obj.Inputs[0]",
+            "value": "0"
+          },
+          {
+            "name": "IN2",
+            "value": "0",
+            "data": "&Obj.Inputs[1]"
+          },
+          {
+            "name": "IN3",
+            "value": "0",
+            "data": "&Obj.Inputs[2]"
+          },
+          {
+            "name": "IN4",
+            "value": "0",
+            "data": "&Obj.Inputs[3]"
+          }
+        ],
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "dtype": "UNSIGNED16"
+      },
+      "6001": {
+        "otype": "ARRAY",
+        "name": "Encoder",
+        "access": "RO",
+        "items": [
+          {
+            "name": "Max SubIndex"
+          },
+          {
+            "name": "ENC1",
+            "data": "&Obj.Encoder[0]",
+            "value": "0"
+          },
+          {
+            "name": "ENC2",
+            "value": "0",
+            "data": "&Obj.Encoder[1]"
+          },
+          {
+            "name": "ENC3",
+            "value": "0",
+            "data": "&Obj.Encoder[2]"
+          },
+          {
+            "name": "ENC4",
+            "value": "0",
+            "data": "&Obj.Encoder[3]"
+          }
+        ],
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "dtype": "UNSIGNED64"
+      },
+      "6002": {
+        "otype": "ARRAY",
+        "name": "Analog",
+        "access": "RO",
+        "items": [
+          {
+            "name": "Max SubIndex"
+          },
+          {
+            "name": "A1",
+            "data": "&Obj.Analog[0]",
+            "value": "0"
+          },
+          {
+            "name": "A2",
+            "value": "0",
+            "data": "&Obj.Analog[1]"
+          },
+          {
+            "name": "A3",
+            "value": "0",
+            "data": "&Obj.Analog[2]"
+          },
+          {
+            "name": "A4",
+            "value": "0",
+            "data": "&Obj.Analog[3]"
+          },
+          {
+            "name": "A5",
+            "value": "0",
+            "data": "&Obj.Analog[4]"
+          },
+          {
+            "name": "A6",
+            "value": "0",
+            "data": "&Obj.Analog[5]"
+          }
+        ],
+        "pdo_mappings": [
+          "txpdo"
+        ],
+        "dtype": "UNSIGNED16"
+      }
+    },
+    "rxpdo": {
+      "7001": {
+        "otype": "ARRAY",
+        "name": "Outputs",
+        "access": "RO",
+        "items": [
+          {
+            "name": "Max SubIndex"
+          },
+          {
+            "name": "OUT1",
+            "data": "&Obj.Outputs[0]",
+            "value": "0"
+          },
+          {
+            "name": "OUT2",
+            "value": "0",
+            "data": "&Obj.Outputs[1]"
+          },
+          {
+            "name": "OUT3",
+            "value": "0",
+            "data": "&Obj.Outputs[2]"
+          },
+          {
+            "name": "OUT4",
+            "value": "0",
+            "data": "&Obj.Outputs[3]"
+          }
+        ],
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "dtype": "UNSIGNED16"
+      },
+      "60664": {
+        "otype": "VAR",
+        "name": "ActualPosition",
+        "access": "RO",
+        "pdo_mappings": [
+          "rxpdo"
+        ],
+        "dtype": "INTEGER32",
+        "value": "0"
+      }
+    }
+  },
+  "dc": []
+}
