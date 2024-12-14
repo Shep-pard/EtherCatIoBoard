@@ -476,6 +476,7 @@ void SystemClock_Config(void)
  80005ca:	f5b3 5f00 	cmp.w	r3, #8192	@ 0x2000
  80005ce:	d1f8      	bne.n	80005c2 <SystemClock_Config+0x5a>
 
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
