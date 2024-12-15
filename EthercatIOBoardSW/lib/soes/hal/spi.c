@@ -3,18 +3,6 @@
 
 extern SPI_HandleTypeDef hspi1;
 
-void spi_gpio_setup(void)
-{
-
-
-
-
-}
-
-void spi_setup(void)
-{
-
-}
 
 void spi_select (int8_t board)
 {
@@ -32,7 +20,6 @@ inline static uint8_t spi_transfer(uint8_t byte)
 	uint8_t receive = 0;
 	HAL_SPI_TransmitReceive(&hspi1, &byte, &receive, 1, 50);
 
-
     return receive;
 }
 
@@ -49,6 +36,5 @@ void spi_read (int8_t board, uint8_t *result, uint8_t size)
 
 void spi_bidirectionally_transfer (int8_t board, uint8_t *result, uint8_t *data, uint8_t size)
 {
-
 	HAL_SPI_TransmitReceive(&hspi1, data, result, size, 50);
 }

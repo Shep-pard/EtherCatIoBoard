@@ -1,7 +1,0 @@
-../lib/soes/hal/spi.c:6:6:spi_gpio_setup	1
-../lib/soes/hal/spi.c:14:6:spi_setup	1
-../lib/soes/hal/spi.c:19:6:spi_select	1
-../lib/soes/hal/spi.c:25:6:spi_unselect	1
-../lib/soes/hal/spi.c:39:6:spi_write	1
-../lib/soes/hal/spi.c:44:6:spi_read	1
-../lib/soes/hal/spi.c:50:6:spi_bidirectionally_transfer	1

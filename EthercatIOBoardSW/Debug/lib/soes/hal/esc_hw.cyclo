@@ -1,7 +1,0 @@
-../lib/soes/hal/esc_hw.c:47:13:esc_address	1
-../lib/soes/hal/esc_hw.c:72:6:ESC_read	2
-../lib/soes/hal/esc_hw.c:101:6:ESC_write	1
-../lib/soes/hal/esc_hw.c:113:13:task_delay	2
-../lib/soes/hal/esc_hw.c:124:6:ESC_reset	3
-../lib/soes/hal/esc_hw.c:150:6:ESC_init	1
-../lib/soes/hal/esc_hw.c:175:10:ESC_enable_DC	4

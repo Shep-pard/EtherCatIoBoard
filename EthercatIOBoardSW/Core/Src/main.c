@@ -54,19 +54,21 @@ FDCAN_HandleTypeDef hfdcan2;
 
 I2C_HandleTypeDef hi2c1;
 
+IWDG_HandleTypeDef hiwdg1;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim16;
 
 /* USER CODE BEGIN PV */
 
-_Objects Obj;
+_Objects Obj; // Ethercat data
 
 
-void handleNewData();
 void disableAllOutputs();
 void stateChangeHook(uint8_t* applicationState, uint8_t* applicationError);
 
@@ -78,7 +80,7 @@ static esc_cfg_t config =
         .set_defaults_hook = NULL,
         .pre_state_change_hook = NULL,
         .post_state_change_hook = stateChangeHook,
-        .application_hook = handleNewData,
+        .application_hook = NULL,
         .safeoutput_override = disableAllOutputs,
         .pre_object_download_hook = NULL,
         .post_object_download_hook = NULL,
@@ -95,20 +97,18 @@ uint8_t inputExpanders[]  = {0x20<<1, 0x24<<1, 0x22<<1};
 uint16_t inputData[3];
 
 uint8_t outputExpanders[] = {0x25<<1, 0x21<<1, 0x26<<1};
-uint16_t outputData[3];
-uint16_t newOutputData[3];
+uint16_t outputData[3] = {0};
+uint16_t newOutputData[3] = {0};
 
 // ADC VARS:
-
 uint16_t adcVal[6];
 
 
 
 
 // STATE VARS:
-
-volatile bool gotNewData;
 volatile bool isInOp = false;
+volatile bool updateEthercat = false;
 
 
 const uint32_t timeout = 200;
@@ -127,6 +127,8 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_IWDG1_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -174,13 +176,19 @@ int main(void)
   MX_TIM4_Init();
   MX_I2C1_Init();
   MX_ADC1_Init();
+  MX_IWDG1_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   ecat_slv_init(&config);
 
+  // Start the encoders
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+
+  // update ethercat data with 10kHz
+  HAL_TIM_Base_Start_IT(&htim16);
 
 
   // configure the IO Expanders as in/outputs
@@ -188,19 +196,18 @@ int main(void)
   uint8_t allZeros[] = {0x00, 0x00};
   for(uint8_t i = 0; i < 3; i++)
   {
-	  // can't write 4 regs at once.
+	  // can't write 4 regs at once. not sure why
 	  HAL_I2C_Mem_Write(&hi2c1, inputExpanders[i], DIRECTION_REG, 1, allOnes, 2, 100);
 	  HAL_I2C_Mem_Write(&hi2c1, inputExpanders[i], POLARITY_REG, 1, allZeros, 2, 100);
 
+	  HAL_I2C_Mem_Write(&hi2c1, outputExpanders[i], OUTPUT_REG, 1, allZeros, 2, 100);
 	  HAL_I2C_Mem_Write(&hi2c1, outputExpanders[i], POLARITY_REG, 1, allZeros, 2, 100);
 	  HAL_I2C_Mem_Write(&hi2c1, outputExpanders[i], DIRECTION_REG, 1, allZeros, 2, 100);
+
   }
 
 
-//  HAL_ADC_Start_DMA(&hadc1, adcVal, 6);
   HAL_ADC_Start_IT(&hadc1);
-
-  uint32_t lastI2CTime = HAL_GetTick();
 
   /* USER CODE END 2 */
 
@@ -208,6 +215,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+// needed when using sync. But for IOs sync is really not needed.
 //	  uint64_t dTime;
 //	 if (serveIRQ)
 //	 {
@@ -216,14 +225,14 @@ int main(void)
 //		serveIRQ = 0;
 //		ESCvar.PrevTime = ESCvar.Time;
 //		ecat_slv_poll();
-//	 }
+//
 
-	ecat_slv();
 
-	 if(gotNewData && (HAL_GetTick() - lastI2CTime > timeout))
-	 {
-		 gotNewData = false;
-		 lastI2CTime = HAL_GetTick();
+	  if (updateEthercat)
+	  {
+		HAL_IWDG_Refresh(&hiwdg1);
+		ecat_slv();
+		updateEthercat = false;
 		 for(uint8_t i = 0; i < 3; i++)
 		 {
 			 HAL_I2C_Mem_Read(&hi2c1, inputExpanders[i], INPUT_REG, 1, (uint8_t*)&inputData[i], 2, 100);
@@ -233,7 +242,7 @@ int main(void)
 				 outputData[i] = newOutputData[i];
 			 }
 		 }
-	 }
+	  }
 
     /* USER CODE END WHILE */
 
@@ -261,12 +270,12 @@ void SystemClock_Config(void)
 
   while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
-
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 5;
@@ -517,6 +526,35 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+  * @brief IWDG1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG1_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG1_Init 0 */
+
+  /* USER CODE END IWDG1_Init 0 */
+
+  /* USER CODE BEGIN IWDG1_Init 1 */
+
+  /* USER CODE END IWDG1_Init 1 */
+  hiwdg1.Instance = IWDG1;
+  hiwdg1.Init.Prescaler = IWDG_PRESCALER_128;
+  hiwdg1.Init.Window = 200;
+  hiwdg1.Init.Reload = 200;
+  if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG1_Init 2 */
+
+  /* USER CODE END IWDG1_Init 2 */
+
+}
+
+/**
   * @brief SPI1 Initialization Function
   * @param None
   * @retval None
@@ -763,6 +801,38 @@ static void MX_TIM4_Init(void)
 }
 
 /**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 0;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 11999;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -876,11 +946,6 @@ void stateChangeHook(uint8_t* oldState, uint8_t* newState)
 
 }
 
-void handleNewData()
-{
-	gotNewData = true;
-}
-
 
 void cb_set_outputs(void) // Get Master outputs, slave inputs, first operation
 {
@@ -906,8 +971,6 @@ void cb_get_inputs(void) // Set Master inputs, slave outputs, last operation
 	Obj.Encoder[1] = htim2.Instance->CNT;
 	Obj.Encoder[2] = htim3.Instance->CNT;
 	Obj.Encoder[3] = htim4.Instance->CNT;
-
-
 }
 
 

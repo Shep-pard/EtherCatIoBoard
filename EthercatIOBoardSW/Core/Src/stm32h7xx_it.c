@@ -22,6 +22,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdbool.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,8 +59,10 @@ uint8_t adcCnt = 0;
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern I2C_HandleTypeDef hi2c1;
+extern TIM_HandleTypeDef htim16;
 /* USER CODE BEGIN EV */
 extern uint16_t adcVal[6];
+extern volatile bool updateEthercat;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -210,7 +213,7 @@ void EXTI0_IRQHandler(void)
   /* USER CODE END EXTI0_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(ENC1_Z_Data_Pin);
   /* USER CODE BEGIN EXTI0_IRQn 1 */
-
+  TIM1->CNT = 0;
   /* USER CODE END EXTI0_IRQn 1 */
 }
 
@@ -224,7 +227,7 @@ void EXTI1_IRQHandler(void)
   /* USER CODE END EXTI1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(ENC2_Z_Data_Pin);
   /* USER CODE BEGIN EXTI1_IRQn 1 */
-
+  TIM2->CNT = 0;
   /* USER CODE END EXTI1_IRQn 1 */
 }
 
@@ -238,7 +241,7 @@ void EXTI2_IRQHandler(void)
   /* USER CODE END EXTI2_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(ENC3_Z_Data_Pin);
   /* USER CODE BEGIN EXTI2_IRQn 1 */
-
+  TIM3->CNT = 0;
   /* USER CODE END EXTI2_IRQn 1 */
 }
 
@@ -252,7 +255,7 @@ void EXTI3_IRQHandler(void)
   /* USER CODE END EXTI3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(ENC4_Z_Data_Pin);
   /* USER CODE BEGIN EXTI3_IRQn 1 */
-
+  TIM4->CNT = 0;
   /* USER CODE END EXTI3_IRQn 1 */
 }
 
@@ -282,11 +285,6 @@ void ADC_IRQHandler(void)
   HAL_ADC_IRQHandler(&hadc1);
   /* USER CODE BEGIN ADC_IRQn 1 */
 
-//	adcVal[adcCnt++] = HAL_ADC_GetValue(&hadc1);
-//	if(adcCnt>5)
-//	{
-//		adcCnt=0;
-//	}
   /* USER CODE END ADC_IRQn 1 */
 }
 
@@ -316,6 +314,20 @@ void I2C1_ER_IRQHandler(void)
   /* USER CODE BEGIN I2C1_ER_IRQn 1 */
 
   /* USER CODE END I2C1_ER_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM16 global interrupt.
+  */
+void TIM16_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM16_IRQn 0 */
+
+  /* USER CODE END TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim16);
+  /* USER CODE BEGIN TIM16_IRQn 1 */
+  updateEthercat = true;
+  /* USER CODE END TIM16_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

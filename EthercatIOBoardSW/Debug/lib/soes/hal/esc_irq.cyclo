@@ -1,4 +1,0 @@
-../lib/soes/hal/esc_irq.c:6:6:EXTILine1_Config	1
-../lib/soes/hal/esc_irq.c:41:6:EXTILine1_Disable	1
-../lib/soes/hal/esc_irq.c:64:6:EXTILine3_Config	1
-../lib/soes/hal/esc_irq.c:99:6:EXTILine3_Disable	1
