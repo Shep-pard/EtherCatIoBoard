@@ -14,7 +14,7 @@ typedef struct
    /* Inputs */
 
    uint16_t Inputs[3];
-   uint32_t Encoder[4];
+   int32_t Encoder[4];
    uint16_t Analog[6];
 
    /* Outputs */

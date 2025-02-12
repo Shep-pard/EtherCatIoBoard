@@ -162,10 +162,10 @@ const _objd SDO6000[] =
 const _objd SDO6001[] =
 {
   {0x00, DTYPE_UNSIGNED8, 8, ATYPE_RO, acName6001_00, 4, NULL},
-  {0x01, DTYPE_UNSIGNED32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_01, 0, &Obj.Encoder[0]},
-  {0x02, DTYPE_UNSIGNED32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_02, 0, &Obj.Encoder[1]},
-  {0x03, DTYPE_UNSIGNED32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_03, 0, &Obj.Encoder[2]},
-  {0x04, DTYPE_UNSIGNED32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_04, 0, &Obj.Encoder[3]},
+  {0x01, DTYPE_INTEGER32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_01, 0, &Obj.Encoder[0]},
+  {0x02, DTYPE_INTEGER32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_02, 0, &Obj.Encoder[1]},
+  {0x03, DTYPE_INTEGER32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_03, 0, &Obj.Encoder[2]},
+  {0x04, DTYPE_INTEGER32, 32, ATYPE_RO | ATYPE_TXPDO, acName6001_04, 0, &Obj.Encoder[3]},
 };
 const _objd SDO6002[] =
 {

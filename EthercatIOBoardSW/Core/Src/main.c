@@ -63,6 +63,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 
@@ -103,6 +104,8 @@ uint16_t newOutputData[3] = {0};
 // ADC VARS:
 uint16_t adcVal[6];
 
+int32_t encoderValues[4];
+
 
 
 
@@ -129,6 +132,7 @@ static void MX_I2C1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -178,6 +182,7 @@ int main(void)
   MX_ADC1_Init();
   MX_IWDG1_Init();
   MX_TIM16_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
   ecat_slv_init(&config);
 
@@ -833,6 +838,38 @@ static void MX_TIM16_Init(void)
 }
 
 /**
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM17_Init(void)
+{
+
+  /* USER CODE BEGIN TIM17_Init 0 */
+
+  /* USER CODE END TIM17_Init 0 */
+
+  /* USER CODE BEGIN TIM17_Init 1 */
+
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 0;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 23999;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM17_Init 2 */
+
+  /* USER CODE END TIM17_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -967,10 +1004,10 @@ void cb_get_inputs(void) // Set Master inputs, slave outputs, last operation
 		Obj.Analog[i] = adcVal[i];
 	}
 	// TODO: linuxcnc wants s32 values. Need to convert the values correctly. tim1/3/4 are only 16bit cnt registers. Need to keep track over the overlap manually.
-	Obj.Encoder[0] = htim1.Instance->CNT;
-	Obj.Encoder[1] = htim2.Instance->CNT;
-	Obj.Encoder[2] = htim3.Instance->CNT;
-	Obj.Encoder[3] = htim4.Instance->CNT;
+  for (uint8_t i = 0; i < 4; i++)
+    {
+    Obj.Encoder[0] = encoderValues[i];
+    }
 }
 
 

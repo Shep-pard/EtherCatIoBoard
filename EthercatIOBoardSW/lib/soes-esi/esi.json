@@ -25,12 +25,13 @@
     "Port3Physical": " ",
     "ESC": "AX58100",
     "SPImode": "3",
-    "CoeDetailsEnableSDO": "EnableSDO",
-    "CoeDetailsEnableSDOInfo": "EnableSDOInfo",
-    "CoeDetailsEnablePDOAssign": "EnablePDOAssign",
-    "CoeDetailsEnablePDOConfiguration": "EnablePDOConfiguration",
-    "CoeDetailsEnableUploadAtStartup": "EnableUploadAtStartup",
-    "CoeDetailsEnableSDOCompleteAccess": "EnableSDOCompleteAccess"
+    "CoeDetailsEnableSDO": false,
+    "CoeDetailsEnableSDOInfo": false,
+    "CoeDetailsEnablePDOAssign": false,
+    "CoeDetailsEnablePDOConfiguration": false,
+    "CoeDetailsEnableUploadAtStartup": false,
+    "CoeDetailsEnableSDOCompleteAccess": false,
+    "DetailsEnableUseFoE": false
   },
   "od": {
     "sdo": {
@@ -122,7 +123,7 @@
         "pdo_mappings": [
           "txpdo"
         ],
-        "dtype": "UNSIGNED32"
+        "dtype": "INTEGER32"
       },
       "6002": {
         "otype": "ARRAY",

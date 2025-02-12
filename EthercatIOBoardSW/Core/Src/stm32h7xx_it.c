@@ -32,7 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ONE_PERIOD 65536
+#define HALF_PERIOD 32768
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,11 +44,17 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 uint8_t adcCnt = 0;
+extern int32_t encoderValues[3];
+
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+int32_t unwrap_encoder(uint16_t in, int32_t * prev);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -60,6 +67,7 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim16;
+extern TIM_HandleTypeDef htim17;
 /* USER CODE BEGIN EV */
 extern uint16_t adcVal[6];
 extern volatile bool updateEthercat;
@@ -330,6 +338,25 @@ void TIM16_IRQHandler(void)
   /* USER CODE END TIM16_IRQn 1 */
 }
 
+/**
+  * @brief This function handles TIM17 global interrupt.
+  */
+void TIM17_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM17_IRQn 0 */
+
+  /* USER CODE END TIM17_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim17);
+  /* USER CODE BEGIN TIM17_IRQn 1 */
+
+  encoderValues[0] = unwrap_encoder(htim1.Instance->CNT, &encoderValues[0]);
+  encoderValues[1] = unwrap_encoder(htim2.Instance->CNT, &encoderValues[1]);
+  encoderValues[2] = unwrap_encoder(htim3.Instance->CNT, &encoderValues[2]);
+  encoderValues[3] = unwrap_encoder(htim4.Instance->CNT, &encoderValues[3]);
+
+  /* USER CODE END TIM17_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
@@ -338,5 +365,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 		{
 			adcCnt=0;
 		}
+}
+
+
+int32_t unwrap_encoder(uint16_t in, int32_t * prev)
+{
+  int32_t c32 = (int32_t)in - HALF_PERIOD;    //remove half period to determine (+/-) sign of the wrap
+  int32_t dif = (c32-*prev);  //core concept: prev + (current - prev) = current
+
+  //wrap difference from -HALF_PERIOD to HALF_PERIOD. modulo prevents differences after the wrap from having an incorrect result
+  int32_t mod_dif = ((dif + HALF_PERIOD) % ONE_PERIOD) - HALF_PERIOD;
+  if(dif < -HALF_PERIOD)
+    mod_dif += ONE_PERIOD;  //account for mod of negative number behavior in C
+
+  int32_t unwrapped = *prev + mod_dif;
+  *prev = unwrapped;  //load previous value
+
+  return unwrapped + HALF_PERIOD; //remove the shift we applied at the beginning, and return
 }
 /* USER CODE END 1 */
