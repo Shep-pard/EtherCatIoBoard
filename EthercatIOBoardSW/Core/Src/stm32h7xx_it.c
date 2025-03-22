@@ -350,7 +350,7 @@ void TIM17_IRQHandler(void)
   /* USER CODE BEGIN TIM17_IRQn 1 */
 
   encoderValues[0] = unwrap_encoder(htim1.Instance->CNT, &encoderValues[0]);
-  encoderValues[1] = unwrap_encoder(htim2.Instance->CNT, &encoderValues[1]);
+  encoderValues[1] = (int32_t)(htim2.Instance->CNT - 2147483648U);
   encoderValues[2] = unwrap_encoder(htim3.Instance->CNT, &encoderValues[2]);
   encoderValues[3] = unwrap_encoder(htim4.Instance->CNT, &encoderValues[3]);
 

@@ -1006,7 +1006,7 @@ void cb_get_inputs(void) // Set Master inputs, slave outputs, last operation
 	// TODO: linuxcnc wants s32 values. Need to convert the values correctly. tim1/3/4 are only 16bit cnt registers. Need to keep track over the overlap manually.
   for (uint8_t i = 0; i < 4; i++)
     {
-    Obj.Encoder[0] = encoderValues[i];
+    Obj.Encoder[i] = encoderValues[i];
     }
 }
 
